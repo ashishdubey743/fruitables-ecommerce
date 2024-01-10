@@ -12,7 +12,9 @@ import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import jakarta.validation.Valid;
 import com.example.demo.model.SigninForm;
+import com.example.demo.model.SignupForm;
 import org.springframework.ui.Model;
+
 
 
 
@@ -87,7 +89,8 @@ public class HomeController implements WebMvcConfigurer{
     }
     
     @RequestMapping("/register")
-    public String register() {
+    public String register(Model model) {
+        model.addAttribute("signupForm", new SignupForm());
         return "admin/pages/samples/register";
     }
 
@@ -99,5 +102,13 @@ public class HomeController implements WebMvcConfigurer{
 		}
 		return "index";
 	}
-    
+
+    @PostMapping("/processFormSignup")
+    public String submitForm(@Valid SignupForm signupForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+			return "admin/pages/samples/register";
+		}
+		return "admin/pages/index";
+    }
+
 }
