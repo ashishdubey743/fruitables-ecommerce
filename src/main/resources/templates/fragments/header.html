@@ -81,9 +81,28 @@
                                 <i class="fa fa-shopping-bag fa-2x"></i>
                                 <span class="position-absolute bg-secondary rounded-circle d-flex align-items-center justify-content-center text-dark px-1" style="top: -5px; left: 15px; height: 20px; min-width: 20px;">3</span>
                             </a>
-                            <a href="#" class="my-auto">
-                                <i class="fas fa-user fa-2x"></i>
-                            </a>
+                            <ul class="navbar-nav navbar-nav-right">
+                                <li class="nav-item nav-profile dropdown">
+                                    <a id="profileDropdown" href="#" class="my-auto nav-link dropdown-toggle">
+                                        <i class="fas fa-user fa-2x"></i>
+                                    </a>
+                                    <div class="dropdown-menu navbar-dropdown" aria-labelledby="profileDropdown">
+                                        <!-- <div class="dropdown-divider"></div> -->
+                                        <!-- Check if session.user is null -->
+                                        <a th:if="${session.user == null}" class="dropdown-item" href="/login">
+                                            <i class="mdi mdi-logout me-2 text-primary"></i> Signin
+                                        </a>
+
+                                        <!-- If session.user is not null, show the signout button -->
+                                        <a th:if="${session.user != null}" class="dropdown-item" href="#">
+                                            <i class="mdi mdi-logout me-2 text-primary"></i> signout
+                                        </a>
+                                    </div>
+                                </li>
+                            </ul>
+                            
+                               
+                            
                         </div>
                     </div>
                 </nav>

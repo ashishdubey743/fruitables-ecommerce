@@ -1,20 +1,29 @@
 package com.example.demo;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import jakarta.validation.Valid;
+import com.example.demo.model.SigninForm;
+import org.springframework.ui.Model;
 
 
-@SpringBootApplication
 
 @Controller
-public class HomeController {
+public class HomeController implements WebMvcConfigurer{
+
+        @Override
+        public void addViewControllers(ViewControllerRegistry registry) {
+            registry.addViewController("/results").setViewName("results");
+        }
+
         @Autowired 
         private UserRepository userRepository;
         @PostMapping(path="/add")
@@ -29,10 +38,6 @@ public class HomeController {
     @GetMapping(path="/all")
     public @ResponseBody Iterable<User> getAllUsers() {
         return userRepository.findAll();
-    }
-
-     public static void main(String[] args) {
-        SpringApplication.run(HomeController.class, args);
     }
 
     @RequestMapping("/")
@@ -74,4 +79,25 @@ public class HomeController {
     public String pg_404() {
         return "404";
     }
+
+    @RequestMapping("/login")
+    public String login(Model model) {
+        model.addAttribute("signinForm", new SigninForm());
+        return "admin/pages/samples/login";
+    }
+    
+    @RequestMapping("/register")
+    public String register() {
+        return "admin/pages/samples/register";
+    }
+
+    @PostMapping("/processFormSignin")
+    public String submitForm(@Valid SigninForm signinForm, BindingResult bindingResult) {
+
+		if (bindingResult.hasErrors()) {
+			return "admin/pages/samples/login";
+		}
+		return "index";
+	}
+    
 }

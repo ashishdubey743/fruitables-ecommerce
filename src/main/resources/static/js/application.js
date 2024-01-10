@@ -1,26 +1,3 @@
-// const showPosition = position => {
-//     console.log("long"+ position.coords.longitude)
-//     console.log("latitude"+ position.coords.latitude)
-//     displayLocation(position.coords.longitude, position.coords.latitude)
-// }
-
-// const displayLocation = (latitude,longitude) => {
-//     var request = new XMLHttpRequest();
-
-//     var method = 'GET';
-//     var url = 'http://maps.googleapis.com/maps/api/geocode/json?latlng='+latitude+','+longitude+'&sensor=true';
-//     var async = true;
-
-//     request.open(method, url, async);
-//     request.onreadystatechange = function(){
-//       if(request.readyState == 4 && request.status == 200){
-//         var data = JSON.parse(request.responseText);
-//         var address = data.results[0];
-//         document.write(address.formatted_address);
-//       }
-//     };
-//     request.send();
-//   };
 
 const showPosition = position => {
     getZipCode(position.coords.latitude, position.coords.longitude);
