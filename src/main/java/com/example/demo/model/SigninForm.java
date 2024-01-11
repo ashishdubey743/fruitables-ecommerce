@@ -5,18 +5,18 @@ import jakarta.validation.constraints.NotBlank;
 public class SigninForm {
 
 	
-	@NotBlank(message = "Username  must not be Blank")
-	private String Username;
+	@NotBlank(message = "Email  must not be Blank")
+	private String email;
 
 	@NotBlank(message = "Password  must not be Blank")
     private String Password;
 
-	public String getUsername() {
-		return this.Username;
+	public String getEmail() {
+		return this.email;
 	}
 
-	public void setUsername(String Username) {
-		this.Username = Username;
+	public void setEmail(String email) {
+		this.email = email;
 	}
 
     public String getPassword() {
@@ -28,7 +28,7 @@ public class SigninForm {
 	}
 
 	public String toString() {
-		return "Person(Name: " + this.Username;
+		return "Person(Name: " + this.email;
 
 	}
 

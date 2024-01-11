@@ -10,12 +10,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import com.example.demo.model.SigninForm;
 import com.example.demo.model.SignupForm;
 import org.springframework.ui.Model;
-
 
 
 
@@ -89,16 +91,26 @@ public class HomeController implements WebMvcConfigurer{
     }
 
     @PostMapping("/processFormSignin")
-    public String submitForm(@Valid SigninForm signinForm, BindingResult bindingResult) {
+    public String submitForm(@Valid SigninForm signinForm, BindingResult bindingResult, HttpSession session) {
 
 		if (bindingResult.hasErrors()) {
 			return "admin/pages/samples/login";
 		}
-		return "index";
+        if(userRepository.existsByEmail(signinForm.getEmail())){
+            User user = userRepository.findByEmail(signinForm.getEmail());
+            if("admin@gmail.com".equals(user.getEmail()) && "admin".equals(user.getPassword())){
+                session.setAttribute("user_id", user.getId());
+                return "admin/pages/index";
+            }
+            session.setAttribute("user_id", user.getId());
+            return "index";
+        }
+        bindingResult.rejectValue("email", "error.email", "No account is registered with this email.");
+		return "admin/pages/samples/login";
 	}
 
     @PostMapping("/processFormSignup")
-    public String submitForm(@ModelAttribute @Valid SignupForm signupForm, BindingResult bindingResult) {
+    public String submitForm(@ModelAttribute @Valid SignupForm signupForm, BindingResult bindingResult, HttpSession session) {
         if (bindingResult.hasErrors()) {
             return "admin/pages/samples/register";
         }
@@ -110,11 +122,21 @@ public class HomeController implements WebMvcConfigurer{
     
         User user = new User();
         user.setUsername(signupForm.getUsername());
-        user.setemail(signupForm.getEmail());
+        user.setEmail(signupForm.getEmail());
         user.setCountry(signupForm.getCountry());
         user.setPassword(signupForm.getPassword());
         user.setTerms(signupForm.getTerms());
         userRepository.save(user);
+        session.setAttribute("user_id", user.getId());
         return "admin/pages/samples/thank_you";
+    }
+
+    @GetMapping("/logout")
+    public String logout(HttpServletRequest request) {
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+        return "redirect:/login";
     }
 }
