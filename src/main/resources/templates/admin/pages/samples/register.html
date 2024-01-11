@@ -55,7 +55,7 @@
                   <div class="mb-4">
                     <div class="">
                       <label class="form-check-label text-muted">
-                        <input th:field="*{Terms}" type="checkbox" class="" id="Terms" value="0"> &nbsp; I agree to all Terms & Conditions </label><br>
+                        <input th:field="*{Terms}" type="checkbox" class="" id="Terms" value="1"> &nbsp; I agree to all Terms & Conditions </label><br>
                         <span th:if="${#fields.hasErrors('Terms')}" style="color: red;" th:errors="*{Terms}">Terms Error</span>
                     </div>
                   </div>

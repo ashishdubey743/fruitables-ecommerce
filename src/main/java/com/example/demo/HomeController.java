@@ -5,12 +5,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import jakarta.validation.Valid;
+
 import com.example.demo.model.SigninForm;
 import com.example.demo.model.SignupForm;
 import org.springframework.ui.Model;
@@ -28,14 +29,7 @@ public class HomeController implements WebMvcConfigurer{
 
         @Autowired 
         private UserRepository userRepository;
-        @PostMapping(path="/add")
-        public @ResponseBody String addNewUser (@RequestParam String name, @RequestParam String email) {
-            User n = new User();
-            n.setName(name);
-            n.setEmail(email);
-            userRepository.save(n);
-            return "Saved";
-    }
+        
 
     @GetMapping(path="/all")
     public @ResponseBody Iterable<User> getAllUsers() {
@@ -104,11 +98,23 @@ public class HomeController implements WebMvcConfigurer{
 	}
 
     @PostMapping("/processFormSignup")
-    public String submitForm(@Valid SignupForm signupForm, BindingResult bindingResult) {
+    public String submitForm(@ModelAttribute @Valid SignupForm signupForm, BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
-			return "admin/pages/samples/register";
-		}
-		return "admin/pages/index";
+            return "admin/pages/samples/register";
+        }
+    
+        if (userRepository.existsByEmail(signupForm.getEmail())) {
+            bindingResult.rejectValue("Email", "error.Email", "Email already exists");
+            return "admin/pages/samples/register";
+        }
+    
+        User user = new User();
+        user.setUsername(signupForm.getUsername());
+        user.setemail(signupForm.getEmail());
+        user.setCountry(signupForm.getCountry());
+        user.setPassword(signupForm.getPassword());
+        user.setTerms(signupForm.getTerms());
+        userRepository.save(user);
+        return "admin/pages/samples/thank_you";
     }
-
 }
