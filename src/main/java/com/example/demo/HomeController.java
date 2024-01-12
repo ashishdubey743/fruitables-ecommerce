@@ -18,6 +18,10 @@ import jakarta.validation.Valid;
 import com.example.demo.model.SigninForm;
 import com.example.demo.model.SignupForm;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+
+
 
 
 
@@ -100,9 +104,11 @@ public class HomeController implements WebMvcConfigurer{
             User user = userRepository.findByEmail(signinForm.getEmail());
             if("admin@gmail.com".equals(user.getEmail()) && "admin".equals(user.getPassword())){
                 session.setAttribute("user_id", user.getId());
+                session.setAttribute("user", user);
                 return "admin/pages/index";
             }
             session.setAttribute("user_id", user.getId());
+            session.setAttribute("user", user);
             return "index";
         }
         bindingResult.rejectValue("email", "error.email", "No account is registered with this email.");
@@ -128,6 +134,7 @@ public class HomeController implements WebMvcConfigurer{
         user.setTerms(signupForm.getTerms());
         userRepository.save(user);
         session.setAttribute("user_id", user.getId());
+        session.setAttribute("user", user);
         return "admin/pages/samples/thank_you";
     }
 
@@ -139,4 +146,30 @@ public class HomeController implements WebMvcConfigurer{
         }
         return "redirect:/login";
     }
+    @RequestMapping("/categories")
+    public String categories() {
+        return "admin/pages/samples/categories";
+    }
+
+    @RequestMapping("/dashboard")
+    public String dasshboard() {
+        return "admin/pages/index";
+    }
+    
+    @RequestMapping("/add_category")
+    public String add_category() {
+        return "admin/pages/samples/add_category";
+    }
+    
+    @RequestMapping("/products")
+    public String products() {
+        return "admin/pages/samples/products";
+    }
+
+    @RequestMapping("/add_product")
+    public String add_product() {
+        return "admin/pages/samples/add_product";
+    }
+    
+    
 }
