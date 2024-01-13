@@ -2,17 +2,19 @@
 <div class="container mt-5">
     <h2 class="mb-4">Add Category</h2>
 
-    <form>
+    <form method="post" th:action="@{/processAddCategory}" th:object="${addCategory}">
         <!-- Category Name -->
         <div class="mb-3">
             <label for="categoryName" class="form-label">Category Name</label>
-            <input type="text" class="form-control" id="categoryName" placeholder="Enter category name" required>
+            <input th:field="*{categoryName}" type="text" class="form-control" id="categoryName" placeholder="Enter category name">
+            <span th:if="${#fields.hasErrors('categoryName')}" style="color: red;" th:errors="*{categoryName}">categoryName Error</span>
         </div>
 
         <!-- Category Description -->
         <div class="mb-3">
             <label for="categoryDescription" class="form-label">Category Description</label>
-            <textarea class="form-control" id="categoryDescription" rows="3" placeholder="Enter category description"></textarea>
+            <textarea th:field="*{categoryDescription}" class="form-control" id="categoryDescription" rows="3" placeholder="Enter category description"></textarea>
+            <span th:if="${#fields.hasErrors('categoryDescription')}" style="color: red;" th:errors="*{categoryDescription}">categoryDescription Error</span>
         </div>
 
         <!-- Submit Button -->

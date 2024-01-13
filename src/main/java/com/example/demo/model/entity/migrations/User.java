@@ -1,4 +1,4 @@
-package com.example.demo;
+package com.example.demo.model.entity.migrations;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

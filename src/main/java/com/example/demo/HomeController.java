@@ -3,6 +3,7 @@ package com.example.demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+// import org.hibernate.mapping.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -15,14 +16,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
-import com.example.demo.model.SigninForm;
-import com.example.demo.model.SignupForm;
+import com.example.demo.model.entity.migrations.Category;
+import com.example.demo.model.entity.migrations.User;
+import com.example.demo.model.forms.AddCategoryForm;
+import com.example.demo.model.forms.SigninForm;
+import com.example.demo.model.forms.SignupForm;
+import com.example.demo.model.repository.CategoryRepository;
+import com.example.demo.model.repository.UserRepository;
+
+import java.util.Arrays;
+import java.util.List;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-
-
 
 
 @Controller
@@ -35,6 +39,8 @@ public class HomeController implements WebMvcConfigurer{
 
         @Autowired 
         private UserRepository userRepository;
+        @Autowired
+        private CategoryRepository categoryRepository;
         
 
     @GetMapping(path="/all")
@@ -147,7 +153,10 @@ public class HomeController implements WebMvcConfigurer{
         return "redirect:/login";
     }
     @RequestMapping("/categories")
-    public String categories() {
+    public String categories(Model model) {
+        List<Category> categories = categoryRepository.findAll();
+        System.out.print(categories);
+        model.addAttribute("categories", categories);
         return "admin/pages/samples/categories";
     }
 
@@ -157,7 +166,8 @@ public class HomeController implements WebMvcConfigurer{
     }
     
     @RequestMapping("/add_category")
-    public String add_category() {
+    public String add_category(Model model) {
+        model.addAttribute("addCategory", new AddCategoryForm());
         return "admin/pages/samples/add_category";
     }
     
@@ -171,5 +181,20 @@ public class HomeController implements WebMvcConfigurer{
         return "admin/pages/samples/add_product";
     }
     
+    @PostMapping("/processAddCategory")
+    public String processAddCategory(@ModelAttribute("addCategory") @Valid AddCategoryForm addCategory, BindingResult bindingResult) {
+        if(bindingResult.hasErrors()){
+            return "admin/pages/samples/add_category";
+        }
+        if (categoryRepository.existsByName(addCategory.getCategoryName())) {
+            bindingResult.rejectValue("categoryName", "error.categoryName", "Category already exists");
+            return "admin/pages/samples/add_category";
+        }
+        Category category = new Category();
+        category.setName(addCategory.getCategoryName());
+        category.setDescription(addCategory.getCategoryDescription());
+        categoryRepository.save(category);
+        return "redirect:/categories";
+    }
     
 }
