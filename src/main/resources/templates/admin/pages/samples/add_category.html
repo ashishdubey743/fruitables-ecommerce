@@ -1,6 +1,11 @@
 <div th:replace="admin/fragments/header"></div>
 <div class="container mt-5">
-    <h2 class="mb-4">Add Category</h2>
+    <div th:if="${editCategoryValue} == 1">
+        <h2 class="mb-4">Edit Category</h2>
+    </div>
+    <div th:if="${addCategoryValue} == 1">
+        <h2 class="mb-4">Add Category</h2>
+    </div>
 
     <form method="post" th:action="@{/processAddCategory}" th:object="${addCategory}">
         <!-- Category Name -->
@@ -18,7 +23,13 @@
         </div>
 
         <!-- Submit Button -->
-        <button type="submit" class="btn btn-primary">Add Category</button>
+        <div th:if="${editCategoryValue} == 1">
+            <button type="submit" class="btn btn-primary">Edit Category</button>
+        </div>
+        <div th:if="${addCategoryValue} == 1">
+            <button type="submit" class="btn btn-primary">Add Category</button>
+        </div>
+        
     </form>
 </div>
 <div th:replace="admin/fragments/footer"></div>

@@ -3,10 +3,11 @@ package com.example.demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
-// import org.hibernate.mapping.List;
+// import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
@@ -24,9 +25,10 @@ import com.example.demo.model.forms.SignupForm;
 import com.example.demo.model.repository.CategoryRepository;
 import com.example.demo.model.repository.UserRepository;
 
-import java.util.Arrays;
+import java.util.Optional;
 import java.util.List;
 import org.springframework.ui.Model;
+
 
 
 @Controller
@@ -155,7 +157,6 @@ public class HomeController implements WebMvcConfigurer{
     @RequestMapping("/categories")
     public String categories(Model model) {
         List<Category> categories = categoryRepository.findAll();
-        System.out.print(categories);
         model.addAttribute("categories", categories);
         return "admin/pages/samples/categories";
     }
@@ -165,11 +166,33 @@ public class HomeController implements WebMvcConfigurer{
         return "admin/pages/index";
     }
     
-    @RequestMapping("/add_category")
-    public String add_category(Model model) {
+    @RequestMapping(value = {"/add_category", "/add_category/{categoryId}"})
+    public String addOrEditCategory(@PathVariable(required = false) Integer categoryId, Model model) {
+        if (categoryId != null) {
+            model.addAttribute("editCategoryValue", 1);
+            // Editing an existing category
+            Optional<Category> optionalCategory = categoryRepository.findById(categoryId);
+            
+            if (optionalCategory.isPresent()) {
+                Category existingCategory = optionalCategory.get();
+                AddCategoryForm editCategoryForm = new AddCategoryForm();
+                editCategoryForm.setCategoryName(existingCategory.getName());
+                editCategoryForm.setCategoryDescription(existingCategory.getDescription());
+                model.addAttribute("addCategory", editCategoryForm);
+            } else {
+                // Handle case where category with the given ID is not found
+                return "redirect:/error";
+            }
+    } else {
+        // Adding a new category
         model.addAttribute("addCategory", new AddCategoryForm());
-        return "admin/pages/samples/add_category";
+        model.addAttribute("addCategoryValue", 1);
     }
+
+    return "admin/pages/samples/add_category";
+}
+
+    
     
     @RequestMapping("/products")
     public String products() {
@@ -196,5 +219,6 @@ public class HomeController implements WebMvcConfigurer{
         categoryRepository.save(category);
         return "redirect:/categories";
     }
+    
     
 }

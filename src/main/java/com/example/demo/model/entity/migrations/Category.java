@@ -13,7 +13,9 @@ import jakarta.persistence.TemporalType;
 
 @Entity
 public class Category {
-
+    public Category(){
+        this.status = '0';
+    }
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
     private Integer id;
@@ -22,6 +24,8 @@ public class Category {
     private String name;
 
     private String description;
+
+    private char status;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
@@ -35,7 +39,7 @@ public class Category {
     }
 
     public Integer getId() {
-        return id;
+        return this.id;
     }
 
     public void setId(Integer id) {
@@ -60,5 +64,13 @@ public class Category {
 
     public Date getCreatedAt() {
         return createdAt;
+    }
+
+    public char getStatus(){
+        return this.status;
+    }
+
+    public void setStatus(char status){
+        this.status = status;
     }
 }
