@@ -12,7 +12,7 @@
                 <span class="badge bg-primary">5 Products</span>
             </div>
             <div class="btn-group" role="group">
-                <button type="button" class="btn btn-danger">Delete</button>
+                <button th:id="${category.id}" onclick="deleteCategory(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>
                 <a th:href="@{/add_category/{categoryId}(categoryId=${category.id})}">
                     <button type="button" class="btn btn-warning">Edit</button>
                 </a>

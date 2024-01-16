@@ -19,28 +19,40 @@ public class RestControllerDemo {
     private CategoryRepository categoryRepository;
 
     @PostMapping("/update_category_status")
-public Map<String, Object> updateCategoryStatus(@RequestBody Category category) {
-    Map<String, Object> response = new HashMap<>();
-    Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
+    public Map<String, Object> updateCategoryStatus(@RequestBody Category category) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
+        if (optionalCategory.isPresent()) {
+            Category existingCategory = optionalCategory.get();
+            existingCategory.setStatus(existingCategory.getStatus() == '0' ? '1' : '0');
+            categoryRepository.save(existingCategory);
+            response.put("status", 200);
+            response.put("msg", existingCategory.getStatus() == '1' ? "Category activated" : "Category deactivated");
+            response.put("category", existingCategory);
+        } else {
+            response.put("status", 404);
+            response.put("msg", "Category not found");
+        }
 
-    if (optionalCategory.isPresent()) {
-        Category existingCategory = optionalCategory.get();
-
-        // Toggle the status
-        existingCategory.setStatus(existingCategory.getStatus() == '0' ? '1' : '0');
-
-        // Save the updated category to the database
-        categoryRepository.save(existingCategory);
-
-        response.put("status", 200);
-        response.put("msg", existingCategory.getStatus() == '1' ? "Category activated" : "Category deactivated");
-        response.put("category", existingCategory);
-    } else {
-        response.put("status", 404);
-        response.put("msg", "Category not found");
+        return response;
     }
 
-    return response;
-}
-
+    @PostMapping("/delete_category")
+    public Map<String, Object> deleteCategory(@RequestBody Category category) {
+        Map<String, Object> response = new HashMap<>();
+        Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
+        if (optionalCategory.isPresent()) {
+            Category existingCategory = optionalCategory.get();
+            if(existingCategory != null){
+                    categoryRepository.delete(existingCategory);
+                    response.put("status", 200);
+                    response.put("msg", "Category Deleted");
+                }else {
+                    response.put("status", 404);
+                    response.put("msg", "Category not found");
+                }
+        }
+        return response;
+    }
+    
 }

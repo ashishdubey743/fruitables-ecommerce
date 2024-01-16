@@ -28,7 +28,6 @@ function getZipCode(latitude, longitude) {
 if (window.location.pathname == "/") {
     navigator.geolocation ? navigator.geolocation.getCurrentPosition(showPosition) : '';
 }
-// navigator.geolocation ? navigator.geolocation.getCurrentPosition(showPosition) : ""
 
 /**
  * Modify status of Category
@@ -55,6 +54,27 @@ const modifyStatus = (currentStatus, element, categoryId) => {
             element.setAttribute('onclick', 'modifyStatus(\'0\', this, this.getAttribute(`id`))');
             element.classList.remove("btn-success");
             element.classList.add("btn-secondary");
+        }
+    })
+}
+
+/**
+ * Delete Category
+ */
+
+const deleteCategory = (element, categoryId) => {
+    fetch('/delete_category',{
+        method : 'POST',
+        body : JSON.stringify({"id":categoryId}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response)=>{
+        return response.json();
+    }).then((response)=>{
+        console.log(response);
+        if(response.status == 200){
+           element.closest("li").remove();
         }
     })
 }
