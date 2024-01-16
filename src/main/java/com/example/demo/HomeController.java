@@ -19,6 +19,7 @@ import jakarta.validation.Valid;
 import com.example.demo.model.entity.migrations.Category;
 import com.example.demo.model.entity.migrations.User;
 import com.example.demo.model.forms.AddCategoryForm;
+import com.example.demo.model.forms.AddProductForm;
 import com.example.demo.model.forms.SigninForm;
 import com.example.demo.model.forms.SignupForm;
 import com.example.demo.model.repository.CategoryRepository;
@@ -27,6 +28,8 @@ import com.example.demo.model.repository.UserRepository;
 import java.util.Optional;
 import java.util.List;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 
 
@@ -201,7 +204,8 @@ public class HomeController implements WebMvcConfigurer{
     }
 
     @RequestMapping("/add_product")
-    public String add_product() {
+    public String add_product(Model model) {
+        model.addAttribute("addProductForm", new AddProductForm());
         return "admin/pages/samples/add_product";
     }
     
@@ -239,5 +243,14 @@ public class HomeController implements WebMvcConfigurer{
         return "redirect:/categories";
     }
     
+    // Products
+    @PostMapping("/processAddProduct")
+    public String postMethodName(@ModelAttribute("addProductForm") @Valid AddProductForm addProductForm, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            return "admin/pages/samples/add_product";
+        }
+        
+        return "";
+    }
     
 }
