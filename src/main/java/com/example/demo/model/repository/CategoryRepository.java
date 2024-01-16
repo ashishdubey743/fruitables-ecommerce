@@ -12,4 +12,5 @@ public interface CategoryRepository extends CrudRepository<Category, Integer>{
     public boolean existsByName(String name);
     List<Category> findAll();
     Optional<Category> findById(Integer id);
+    public boolean existsByNameAndIdNot(String categoryName, Integer categoryId);
 }

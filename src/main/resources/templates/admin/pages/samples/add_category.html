@@ -8,6 +8,9 @@
     </div>
 
     <form method="post" th:action="@{/processAddCategory}" th:object="${addCategory}">
+        <div th:if="${editCategoryValue} == 1">
+            <input type="hidden" th:field="*{categoryId}" th:value="${categoryId}" />
+        </div>
         <!-- Category Name -->
         <div class="mb-3">
             <label for="categoryName" class="form-label">Category Name</label>

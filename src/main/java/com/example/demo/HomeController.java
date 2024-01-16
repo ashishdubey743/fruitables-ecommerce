@@ -3,7 +3,6 @@ package com.example.demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
-// import org.hibernate.mapping.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -176,8 +175,10 @@ public class HomeController implements WebMvcConfigurer{
             if (optionalCategory.isPresent()) {
                 Category existingCategory = optionalCategory.get();
                 AddCategoryForm editCategoryForm = new AddCategoryForm();
+                editCategoryForm.setCategoryId(existingCategory.getId());
                 editCategoryForm.setCategoryName(existingCategory.getName());
                 editCategoryForm.setCategoryDescription(existingCategory.getDescription());
+                model.addAttribute("categoryId", categoryId);
                 model.addAttribute("addCategory", editCategoryForm);
             } else {
                 // Handle case where category with the given ID is not found
@@ -205,7 +206,25 @@ public class HomeController implements WebMvcConfigurer{
     }
     
     @PostMapping("/processAddCategory")
-    public String processAddCategory(@ModelAttribute("addCategory") @Valid AddCategoryForm addCategory, BindingResult bindingResult) {
+    public String processAddCategory(@ModelAttribute("addCategory") @Valid AddCategoryForm addCategory, BindingResult bindingResult, Model model) {
+        // Process of editing Category
+        if(addCategory.getCategoryId() != null){
+            Optional<Category> optionalCategory = categoryRepository.findById(addCategory.getCategoryId());
+            if (categoryRepository.existsByNameAndIdNot(addCategory.getCategoryName(), addCategory.getCategoryId())) {
+                bindingResult.rejectValue("categoryName", "error.categoryName", "Category already exists");
+                model.addAttribute("categoryId", addCategory.getCategoryId());
+                model.addAttribute("editCategoryValue", 1);
+                return "admin/pages/samples/add_category";
+            }
+            if (optionalCategory.isPresent()) {
+                Category existingCategory = optionalCategory.get();
+                existingCategory.setName(addCategory.getCategoryName());
+                existingCategory.setDescription(addCategory.getCategoryDescription());
+                categoryRepository.save(existingCategory);
+                return "redirect:/categories";
+            }
+        }
+        // Add new category
         if(bindingResult.hasErrors()){
             return "admin/pages/samples/add_category";
         }
