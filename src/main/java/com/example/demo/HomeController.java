@@ -3,12 +3,14 @@ package com.example.demo;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -17,18 +19,26 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 
 import com.example.demo.model.entity.migrations.Category;
+import com.example.demo.model.entity.migrations.Image;
+import com.example.demo.model.entity.migrations.Product;
 import com.example.demo.model.entity.migrations.User;
 import com.example.demo.model.forms.AddCategoryForm;
 import com.example.demo.model.forms.AddProductForm;
 import com.example.demo.model.forms.SigninForm;
 import com.example.demo.model.forms.SignupForm;
 import com.example.demo.model.repository.CategoryRepository;
+import com.example.demo.model.repository.ImageRepository;
+import com.example.demo.model.repository.ProductRepository;
 import com.example.demo.model.repository.UserRepository;
 
 import java.util.Optional;
+
+import javax.sql.rowset.serial.SerialException;
+
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 
 
 
@@ -45,7 +55,10 @@ public class HomeController implements WebMvcConfigurer{
         private UserRepository userRepository;
         @Autowired
         private CategoryRepository categoryRepository;
-        
+        @Autowired
+        private ProductRepository productRepository;
+        @Autowired
+        private ImageRepository imageRepository;
 
     @GetMapping(path="/all")
     public @ResponseBody Iterable<User> getAllUsers() {
@@ -206,6 +219,8 @@ public class HomeController implements WebMvcConfigurer{
     @RequestMapping("/add_product")
     public String add_product(Model model) {
         model.addAttribute("addProductForm", new AddProductForm());
+        List<Category> categories = categoryRepository.findAll();
+        model.addAttribute("categories", categories);
         return "admin/pages/samples/add_product";
     }
     
@@ -245,12 +260,32 @@ public class HomeController implements WebMvcConfigurer{
     
     // Products
     @PostMapping("/processAddProduct")
-    public String postMethodName(@ModelAttribute("addProductForm") @Valid AddProductForm addProductForm, BindingResult bindingResult) {
+    public String postMethodName(
+        @RequestParam("image") MultipartFile file,
+        @ModelAttribute("addProductForm") @Valid AddProductForm addProductForm,
+        BindingResult bindingResult,
+        HttpServletRequest request) throws IOException, SerialException, SQLException {
         if (bindingResult.hasErrors()) {
             return "admin/pages/samples/add_product";
         }
         
-        return "";
+        Product product  = new Product();
+        product.setProductName(addProductForm.getName());
+        product.setQuantity(addProductForm.getQuantity());
+        product.setSku(addProductForm.getSku());
+        product.setCategory(addProductForm.getCategory());
+        productRepository.save(product);
+
+        byte[] bytes = file.getBytes();
+
+        Image image = new Image();
+        image.setCategory(addProductForm.getCategory());
+        image.setProductId(product.getId());
+        image.setImage(bytes); // Set the byte[] directly
+        imageRepository.save(image);
+        // List<Product> products = productRepository.findAll();
+
+        return "admin/pages/samples/products";
     }
     
 }

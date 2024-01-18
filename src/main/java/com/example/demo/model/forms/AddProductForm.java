@@ -1,7 +1,10 @@
 package com.example.demo.model.forms;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 
 public class AddProductForm {
 
@@ -19,8 +22,8 @@ public class AddProductForm {
     @NotBlank(message = "Category cannot be Blank")
     private String category;
 
-    @NotBlank(message = "Please Insert an Image")
-    private String image;
+    @NotNull(message = "Please Insert an Image")
+    private MultipartFile image;
 
     // Getters and Setters
 
@@ -59,10 +62,10 @@ public class AddProductForm {
         this.category = category;
     }
 
-    public String getImage(){
+    public MultipartFile getImage(){
         return this.image;
     }
-    public void setImage(String image){
+    public void setImage(MultipartFile image){
         this.image = image;
     }
 }
