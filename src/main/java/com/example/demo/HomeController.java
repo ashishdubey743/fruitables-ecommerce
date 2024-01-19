@@ -5,6 +5,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,11 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
-
 import com.example.demo.model.entity.migrations.Category;
 import com.example.demo.model.entity.migrations.Image;
 import com.example.demo.model.entity.migrations.Product;
@@ -30,18 +29,15 @@ import com.example.demo.model.repository.CategoryRepository;
 import com.example.demo.model.repository.ImageRepository;
 import com.example.demo.model.repository.ProductRepository;
 import com.example.demo.model.repository.UserRepository;
-
 import java.util.Optional;
-
 import javax.sql.rowset.serial.SerialException;
-
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
 import org.springframework.ui.Model;
-
-
-
 
 @Controller
 public class HomeController implements WebMvcConfigurer{
@@ -59,6 +55,9 @@ public class HomeController implements WebMvcConfigurer{
         private ProductRepository productRepository;
         @Autowired
         private ImageRepository imageRepository;
+
+        @Value("${upload.folder}")
+        private String uploadFolder;
 
     @GetMapping(path="/all")
     public @ResponseBody Iterable<User> getAllUsers() {
@@ -212,7 +211,9 @@ public class HomeController implements WebMvcConfigurer{
     
     
     @RequestMapping("/products")
-    public String products() {
+    public String products(Model model) {
+        List<Product> products = productRepository.findAll();
+        model.addAttribute("products", products);
         return "admin/pages/samples/products";
     }
 
@@ -277,15 +278,18 @@ public class HomeController implements WebMvcConfigurer{
         productRepository.save(product);
 
         byte[] bytes = file.getBytes();
+        String filePath = uploadFolder + file.getOriginalFilename();
+        Path path = Paths.get(filePath);
+
+        // Create necessary directories if they do not exist
+        Files.createDirectories(path.getParent());
+        Files.write(path, bytes);
 
         Image image = new Image();
         image.setCategory(addProductForm.getCategory());
         image.setProductId(product.getId());
-        image.setImage(bytes); // Set the byte[] directly
+        image.setImage(path.toString()); // Set the byte[] directly
         imageRepository.save(image);
-        // List<Product> products = productRepository.findAll();
-
         return "admin/pages/samples/products";
     }
-    
 }

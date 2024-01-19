@@ -1,14 +1,8 @@
 package com.example.demo.model.entity.migrations;
 
-import java.sql.Blob;
 import java.sql.SQLException;
 import java.util.Date;
-
-import javax.sql.rowset.serial.SerialBlob;
 import javax.sql.rowset.serial.SerialException;
-
-import org.hibernate.Hibernate;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -18,7 +12,6 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import javax.sql.rowset.serial.SerialBlob;
 
 @Entity
 public class Image {
@@ -30,7 +23,7 @@ public class Image {
     private Integer productId;
 
     @Lob
-    private Blob image;
+    private String image;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "created_at", updatable = false)
@@ -71,13 +64,11 @@ public class Image {
         this.productId = productId;
     }
 
-    public Blob getImage() {
+    public String getImage() {
         return this.image;
     }
 
-    public void setImage(byte[] bytes) throws SerialException, SQLException {
-        // this.image = image;
-                // this.image = Hibernate.getLobCreator(sessionFactory.getCurrentSession()).createBlob(bytes);
-                this.image = new SerialBlob(bytes);
+    public void setImage(String image) throws SerialException, SQLException {
+        this.image = image;
     }
 }
