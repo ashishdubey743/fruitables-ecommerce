@@ -15,26 +15,18 @@
         </thead>
         <tbody>
             <!-- Sample product item, you'll dynamically generate these in your actual application -->
-            <tr>
-                <th scope="row">1</th>
-                <td>Product 1</td>
-                <td><img src="product1.jpg" alt="Product 1" class="img-thumbnail" style="max-width: 50px;"></td>
-                <td>Category A</td>
+            <tr th:each="product, iterStat : ${products}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${product.productName}"></td>
+                <td><img th:src="${product.image}" alt="Product 1" class="img-thumbnail" style="max-width: 50px;"></td>
+                <td th:text="${product.category}"></td>
                 <td>
                     <button type="button" class="btn btn-warning">Edit</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
+                    <button th:id="${product.id}" onclick="deleteProduct(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>
+                    <!-- <button type="button" class="btn btn-danger">Delete</button> -->
                 </td>
             </tr>
-            <tr>
-                <th scope="row">2</th>
-                <td>Product 2</td>
-                <td><img src="product2.jpg" alt="Product 2" class="img-thumbnail" style="max-width: 50px;"></td>
-                <td>Category B</td>
-                <td>
-                    <button type="button" class="btn btn-warning">Edit</button>
-                    <button type="button" class="btn btn-danger">Delete</button>
-                </td>
-            </tr>
+           
             <!-- Add more product items as needed -->
         </tbody>
     </table>

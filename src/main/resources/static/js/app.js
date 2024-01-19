@@ -78,3 +78,20 @@ const deleteCategory = (element, categoryId) => {
         }
     })
 }
+
+const deleteProduct = (element, productId) => {
+    fetch('/delete_product',{
+        method : 'POST',
+        body : JSON.stringify({"id":productId}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response)=>{
+        return response.json();
+    }).then((response)=>{
+        console.log(response);
+        if(response.status == 200){
+           element.closest("tr").remove();
+        }
+    })
+}

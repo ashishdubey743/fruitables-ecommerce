@@ -18,7 +18,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import com.example.demo.model.entity.migrations.Category;
-import com.example.demo.model.entity.migrations.Image;
 import com.example.demo.model.entity.migrations.Product;
 import com.example.demo.model.entity.migrations.User;
 import com.example.demo.model.forms.AddCategoryForm;
@@ -26,9 +25,9 @@ import com.example.demo.model.forms.AddProductForm;
 import com.example.demo.model.forms.SigninForm;
 import com.example.demo.model.forms.SignupForm;
 import com.example.demo.model.repository.CategoryRepository;
-import com.example.demo.model.repository.ImageRepository;
 import com.example.demo.model.repository.ProductRepository;
 import com.example.demo.model.repository.UserRepository;
+
 import java.util.Optional;
 import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
@@ -53,8 +52,8 @@ public class HomeController implements WebMvcConfigurer{
         private CategoryRepository categoryRepository;
         @Autowired
         private ProductRepository productRepository;
-        @Autowired
-        private ImageRepository imageRepository;
+        // @Autowired
+        // private ImageRepository imageRepository;
 
         @Value("${upload.folder}")
         private String uploadFolder;
@@ -261,35 +260,42 @@ public class HomeController implements WebMvcConfigurer{
     
     // Products
     @PostMapping("/processAddProduct")
-    public String postMethodName(
+    public String processAddProduct(
         @RequestParam("image") MultipartFile file,
         @ModelAttribute("addProductForm") @Valid AddProductForm addProductForm,
         BindingResult bindingResult,
-        HttpServletRequest request) throws IOException, SerialException, SQLException {
+        HttpServletRequest request, Model model) throws IOException, SerialException, SQLException {
         if (bindingResult.hasErrors()) {
             return "admin/pages/samples/add_product";
         }
         
+        if (productRepository.existsByProductName(addProductForm.getName())) {
+            bindingResult.rejectValue("name", "error.name", "Product already exists");
+            List<Category> categories = categoryRepository.findAll();
+            model.addAttribute("categories", categories);
+            return "admin/pages/samples/add_product";
+        }
+        if(productRepository.existsBySku(addProductForm.getSku())){
+            bindingResult.rejectValue("sku", "error.sku", "SKU already exists");
+            List<Category> categories = categoryRepository.findAll();
+            model.addAttribute("categories", categories);
+            return "admin/pages/samples/add_product";
+        }
+
         Product product  = new Product();
         product.setProductName(addProductForm.getName());
         product.setQuantity(addProductForm.getQuantity());
         product.setSku(addProductForm.getSku());
         product.setCategory(addProductForm.getCategory());
-        productRepository.save(product);
 
         byte[] bytes = file.getBytes();
         String filePath = uploadFolder + file.getOriginalFilename();
         Path path = Paths.get(filePath);
 
-        // Create necessary directories if they do not exist
         Files.createDirectories(path.getParent());
         Files.write(path, bytes);
-
-        Image image = new Image();
-        image.setCategory(addProductForm.getCategory());
-        image.setProductId(product.getId());
-        image.setImage(path.toString()); // Set the byte[] directly
-        imageRepository.save(image);
-        return "admin/pages/samples/products";
+        product.setImage(path.toString().substring(path.toString().indexOf("admin/")));
+        productRepository.save(product);
+        return "redirect:/products";
     }
 }

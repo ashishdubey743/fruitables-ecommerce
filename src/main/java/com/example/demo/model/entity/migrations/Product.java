@@ -1,12 +1,16 @@
 package com.example.demo.model.entity.migrations;
 
+import java.sql.SQLException;
 import java.util.Date;
+
+import javax.sql.rowset.serial.SerialException;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
@@ -19,7 +23,11 @@ public class Product {
     private Integer id;
 
     @Column(unique=true)
+    
     private String productName;
+
+    @Lob
+    private String image;
 
     private Integer quantity;
 
@@ -83,5 +91,12 @@ public class Product {
         this.category = category;
     }
 
+    public String getImage() {
+        return this.image;
+    }
+
+    public void setImage(String image) throws SerialException, SQLException {
+        this.image = image;
+    }
 }
 

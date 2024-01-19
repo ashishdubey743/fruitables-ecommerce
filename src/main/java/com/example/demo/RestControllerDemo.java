@@ -1,15 +1,22 @@
 package com.example.demo;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.entity.migrations.Category;
+import com.example.demo.model.entity.migrations.Product;
 import com.example.demo.model.repository.CategoryRepository;
+import com.example.demo.model.repository.ProductRepository;
 import java.util.Optional;
 
 @RestController
@@ -17,6 +24,11 @@ public class RestControllerDemo {
 
     @Autowired
     private CategoryRepository categoryRepository;
+    @Autowired
+    private ProductRepository productRepository;
+
+    @Value("${upload.folder}")
+    private String uploadFolder;
 
     @PostMapping("/update_category_status")
     public Map<String, Object> updateCategoryStatus(@RequestBody Category category) {
@@ -55,4 +67,31 @@ public class RestControllerDemo {
         return response;
     }
     
+
+    @PostMapping("/delete_product")
+    public Map<String, Object> deleteProduct(@RequestBody Product product) throws IOException {
+        Map<String, Object> response = new HashMap<>();
+        Optional<Product> optionalProduct = productRepository.findById(product.getId());
+        if (optionalProduct.isPresent()) {
+            Product existingProduct = optionalProduct.get();
+            if(existingProduct != null){
+                    productRepository.delete(existingProduct);
+
+                    
+                    System.out.println("here");
+                    String fileName = existingProduct.getImage().replaceAll(".*/", "");
+                    Path filePath = Paths.get(uploadFolder + fileName);
+                    if (Files.exists(filePath)) {
+                        Files.delete(filePath);
+                        System.out.println(12222);
+                    }
+                    response.put("status", 200);
+                    response.put("msg", "Product Deleted");
+                }else {
+                    response.put("status", 404);
+                    response.put("msg", "Product not found");
+                }
+        }
+        return response;
+    }
 }
