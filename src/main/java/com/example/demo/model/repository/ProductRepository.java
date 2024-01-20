@@ -13,5 +13,7 @@ public interface ProductRepository extends CrudRepository<Product, Integer>{
     boolean existsByProductName(String productName);
     Optional<Product> findById(Integer id);
     boolean existsBySku(String name);
+
+    boolean existsByProductNameAndIdNot(String name, Integer id);
     
 }

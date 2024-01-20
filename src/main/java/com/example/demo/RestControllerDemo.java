@@ -78,12 +78,10 @@ public class RestControllerDemo {
                     productRepository.delete(existingProduct);
 
                     
-                    System.out.println("here");
                     String fileName = existingProduct.getImage().replaceAll(".*/", "");
                     Path filePath = Paths.get(uploadFolder + fileName);
                     if (Files.exists(filePath)) {
                         Files.delete(filePath);
-                        System.out.println(12222);
                     }
                     response.put("status", 200);
                     response.put("msg", "Product Deleted");

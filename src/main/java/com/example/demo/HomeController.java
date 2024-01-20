@@ -29,6 +29,8 @@ import com.example.demo.model.repository.ProductRepository;
 import com.example.demo.model.repository.UserRepository;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
+
 import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -36,6 +38,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
+
 import org.springframework.ui.Model;
 
 @Controller
@@ -171,6 +175,7 @@ public class HomeController implements WebMvcConfigurer{
     public String categories(Model model) {
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
+        System.out.println(categories);
         return "admin/pages/samples/categories";
     }
 
@@ -212,15 +217,38 @@ public class HomeController implements WebMvcConfigurer{
     @RequestMapping("/products")
     public String products(Model model) {
         List<Product> products = productRepository.findAll();
+        
         model.addAttribute("products", products);
         return "admin/pages/samples/products";
     }
 
-    @RequestMapping("/add_product")
-    public String add_product(Model model) {
-        model.addAttribute("addProductForm", new AddProductForm());
-        List<Category> categories = categoryRepository.findAll();
-        model.addAttribute("categories", categories);
+    @RequestMapping(value = {"/add_product", "/add_product/{id}"})
+    public String add_edit_product(@PathVariable(required = false) Integer id, Model model) {
+        System.out.println(id);
+        if(id != null){
+            model.addAttribute("editProductValue", 1);
+            // code for editing product
+            Optional<Product> optionalProduct = productRepository.findById(id);
+            if(optionalProduct.isPresent()){
+                System.out.println("present");
+                Product existingProduct = optionalProduct.get();
+                AddProductForm ediProductForm = new AddProductForm();
+                List<Category> categories = categoryRepository.findAll();
+                ediProductForm.setName(existingProduct.getProductName());
+                ediProductForm.setQuantity(existingProduct.getQuantity());
+                ediProductForm.setCategory(existingProduct.getCategory());
+                ediProductForm.setSku(existingProduct.getSku());
+                model.addAttribute("id", id);
+                model.addAttribute("test", 1);
+                model.addAttribute("addProductForm", ediProductForm);
+                model.addAttribute("categories", categories);
+            }
+        }else{
+            model.addAttribute("addProductForm", new AddProductForm());
+            List<Category> categories = categoryRepository.findAll();
+            model.addAttribute("categories", categories);
+            model.addAttribute("addProductValue", 1);
+        }
         return "admin/pages/samples/add_product";
     }
     
@@ -260,27 +288,57 @@ public class HomeController implements WebMvcConfigurer{
     
     // Products
     @PostMapping("/processAddProduct")
-    public String processAddProduct(
-        @RequestParam("image") MultipartFile file,
-        @ModelAttribute("addProductForm") @Valid AddProductForm addProductForm,
-        BindingResult bindingResult,
+    public String processAddProduct( @RequestParam("image") MultipartFile file, @ModelAttribute("addProductForm") @Valid AddProductForm addProductForm, BindingResult bindingResult,
         HttpServletRequest request, Model model) throws IOException, SerialException, SQLException {
-        if (bindingResult.hasErrors()) {
-            return "admin/pages/samples/add_product";
-        }
+            if(addProductForm.getId() != null){
+                System.out.println("Test");
+                Optional<Product> optionalProduct = productRepository.findById(addProductForm.getId());
+                if (productRepository.existsByProductNameAndIdNot(addProductForm.getName(), addProductForm.getId())) {
+                    bindingResult.rejectValue("categoryName", "error.categoryName", "Product already exists");
+                    model.addAttribute("id", addProductForm.getId());
+                    model.addAttribute("editProductValue", 1);
+                    return "admin/pages/samples/add_category";
+                }
+                if (optionalProduct.isPresent()) {
+                    Product existingProduct = optionalProduct.get();
+                    existingProduct.setProductName(addProductForm.getName());
+                    existingProduct.setQuantity(addProductForm.getQuantity());
+                    existingProduct.setSku(addProductForm.getSku());
+                    existingProduct.setCategory(addProductForm.getCategory());
+                    if(!addProductForm.getImage().isEmpty()){
+                        String fileName = existingProduct.getImage().replaceAll(".*/", "");
+                        Path filePath = Paths.get(uploadFolder + fileName);
+                        if (Files.exists(filePath)) {
+                            Files.delete(filePath);
+                        }
+                        byte[] bytes = file.getBytes();
+                        String Path = uploadFolder + file.getOriginalFilename();
+                        Path path = Paths.get(Path);
+
+                        Files.createDirectories(path.getParent());
+                        Files.write(path, bytes);
+                        existingProduct.setImage(path.toString().substring(path.toString().indexOf("admin/")));
+                    }
+                    productRepository.save(existingProduct);
+                    return "redirect:/products";
+                }
+            }
+            if (bindingResult.hasErrors()) {
+                return "admin/pages/samples/add_product";
+            }
         
-        if (productRepository.existsByProductName(addProductForm.getName())) {
-            bindingResult.rejectValue("name", "error.name", "Product already exists");
-            List<Category> categories = categoryRepository.findAll();
-            model.addAttribute("categories", categories);
-            return "admin/pages/samples/add_product";
-        }
-        if(productRepository.existsBySku(addProductForm.getSku())){
-            bindingResult.rejectValue("sku", "error.sku", "SKU already exists");
-            List<Category> categories = categoryRepository.findAll();
-            model.addAttribute("categories", categories);
-            return "admin/pages/samples/add_product";
-        }
+            if (productRepository.existsByProductName(addProductForm.getName())) {
+                bindingResult.rejectValue("name", "error.name", "Product already exists");
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("categories", categories);
+                return "admin/pages/samples/add_product";
+            }
+            if(productRepository.existsBySku(addProductForm.getSku())){
+                bindingResult.rejectValue("sku", "error.sku", "SKU already exists");
+                List<Category> categories = categoryRepository.findAll();
+                model.addAttribute("categories", categories);
+                return "admin/pages/samples/add_product";
+            }
 
         Product product  = new Product();
         product.setProductName(addProductForm.getName());

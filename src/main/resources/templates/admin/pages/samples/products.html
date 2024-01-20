@@ -21,7 +21,9 @@
                 <td><img th:src="${product.image}" alt="Product 1" class="img-thumbnail" style="max-width: 50px;"></td>
                 <td th:text="${product.category}"></td>
                 <td>
-                    <button type="button" class="btn btn-warning">Edit</button>
+                    <a th:href="@{/add_product/{id}(id=${product.id})}">
+                        <button type="button" class="btn btn-warning">Edit</button>
+                    </a>
                     <button th:id="${product.id}" onclick="deleteProduct(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>
                     <!-- <button type="button" class="btn btn-danger">Delete</button> -->
                 </td>
