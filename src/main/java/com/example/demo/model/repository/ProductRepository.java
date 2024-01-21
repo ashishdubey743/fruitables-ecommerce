@@ -17,5 +17,6 @@ public interface ProductRepository extends CrudRepository<Product, Integer>{
     boolean existsByProductNameAndIdNot(String name, Integer id);
 
     long countByCategory(String category);
-    
+    // List<Product> findByCategory(String category);
+    List<Product> findByCategory(String category);
 }

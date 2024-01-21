@@ -7,6 +7,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -50,18 +51,26 @@ public class RestControllerDemo {
     }
 
     @PostMapping("/delete_category")
-    public Map<String, Object> deleteCategory(@RequestBody Category category) {
+    public Map<String, Object> deleteCategory(@RequestBody Category category) throws IOException {
         Map<String, Object> response = new HashMap<>();
         Optional<Category> optionalCategory = categoryRepository.findById(category.getId());
         if (optionalCategory.isPresent()) {
             Category existingCategory = optionalCategory.get();
+            List<Product> productList = productRepository.findByCategory(existingCategory.getName());
             if(existingCategory != null){
                     categoryRepository.delete(existingCategory);
+                    if (!productList.isEmpty()) {
+                        for(Product product: productList){
+                            String fileName = product.getImage().replaceAll(".*/", "");
+                            Path filePath = Paths.get(uploadFolder + fileName);
+                            if (Files.exists(filePath)) {
+                                Files.delete(filePath);
+                            }
+                        }
+                        productRepository.deleteAll(productList);
+                    }
                     response.put("status", 200);
                     response.put("msg", "Category Deleted");
-                }else {
-                    response.put("status", 404);
-                    response.put("msg", "Category not found");
                 }
         }
         return response;
