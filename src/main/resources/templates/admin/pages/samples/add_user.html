@@ -1,0 +1,41 @@
+<div th:replace="admin/fragments/header"></div>
+<div class="container mt-5">
+    <h2 class="mb-4">Add User</h2>
+    <form th:action="@{/processAddUser}" th:object="${addUserForm}" class="pt-3"  method="post">
+        <div class="form-group">
+            <input th:field="*{username}" name="username" type="text" class="form-control" id="username" placeholder="Username" autocomplete="off">
+            <span th:if="${#fields.hasErrors('username')}" style="color: red;" th:errors="*{username}">username Error</span>
+        </div>
+        <div class="form-group">
+            <input th:field="*{email}" name="useremail" type="email" class="form-control" id="email" placeholder="Email" autocomplete="off">
+            <span th:if="${#fields.hasErrors('email')}" style="color: red;" th:errors="*{email}">email Error</span>
+        </div>
+        <div class="form-group">
+            <select th:field="*{country}" name="country" class="form-select" id="country">
+                <option value="">Select Country</option>
+                <option value="US">United States of America</option>
+                <option value="UK">United Kingdom</option>
+                <option value="IN">India</option>
+                <option value="GE">Germany</option>
+                <option value="AR">Argentina</option>
+            </select>
+            <span th:if="${#fields.hasErrors('country')}" style="color: red;" th:errors="*{country}">country Error</span>
+        </div>
+        <div class="form-group">
+            <input th:field="*{password}" name="userpassword" type="password" class="form-control" id="password" placeholder="Password" autocomplete="off">
+            <span th:if="${#fields.hasErrors('password')}" style="color: red;" th:errors="*{password}">password Error</span>
+        </div>
+        <div class="mb-4">
+            <div class="">
+                <label class="form-check-label text-muted">
+                    <input th:field="*{terms}" name="terms" type="checkbox" class="" id="terms" value="1"> &nbsp; I agree to all Terms & Conditions </label><br>
+                    <span th:if="${#fields.hasErrors('terms')}" style="color: red;" th:errors="*{terms}">terms Error</span>
+            </div>
+        </div>
+        <div class="mt-3">
+            <button type="submit" class="btn btn-block btn-gradient-primary btn-lg font-weight-medium auth-form-btn">Save User</button>
+        </div>
+    
+</div>
+
+<div th:replace="admin/fragments/footer"></div>

@@ -22,6 +22,7 @@ import com.example.demo.model.entity.migrations.Product;
 import com.example.demo.model.entity.migrations.User;
 import com.example.demo.model.forms.AddCategoryForm;
 import com.example.demo.model.forms.AddProductForm;
+import com.example.demo.model.forms.AddUserForm;
 import com.example.demo.model.forms.SigninForm;
 import com.example.demo.model.forms.SignupForm;
 import com.example.demo.model.repository.CategoryRepository;
@@ -39,6 +40,10 @@ import java.sql.SQLException;
 import java.util.List;
 
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestBody;
+
+
 
 @Controller
 public class HomeController implements WebMvcConfigurer{
@@ -294,7 +299,6 @@ public class HomeController implements WebMvcConfigurer{
     public String processAddProduct( @RequestParam("image") MultipartFile file, @ModelAttribute("addProductForm") @Valid AddProductForm addProductForm, BindingResult bindingResult,
         HttpServletRequest request, Model model) throws IOException, SerialException, SQLException {
             if(addProductForm.getId() != null){
-                System.out.println("Test");
                 Optional<Product> optionalProduct = productRepository.findById(addProductForm.getId());
                 if (productRepository.existsByProductNameAndIdNot(addProductForm.getName(), addProductForm.getId())) {
                     bindingResult.rejectValue("categoryName", "error.categoryName", "Product already exists");
@@ -359,4 +363,39 @@ public class HomeController implements WebMvcConfigurer{
         productRepository.save(product);
         return "redirect:/products";
     }
+
+    @RequestMapping("/users")
+    public String users() {
+        return "admin/pages/samples/users";
+    }
+    
+    @RequestMapping("/add_user")
+    public String add_user(Model model) {
+        model.addAttribute("addUserForm", new AddUserForm());
+        return "admin/pages/samples/add_user";
+    }
+
+    @PostMapping("/processAddUser")
+    public String processAddUser(@ModelAttribute("addUserForm") @Valid AddUserForm addUserForm, BindingResult bindingResult, Model model, HttpSession session) {
+        if(bindingResult.hasErrors()){
+            return "admin/pages/samples/add_user";
+        }
+        if (userRepository.existsByEmail(addUserForm.getEmail())) {
+            bindingResult.rejectValue("email", "error.email", "Email already exists");
+            return "admin/pages/samples/add_user";
+        }
+    
+        User user = new User();
+        user.setUsername(addUserForm.getUsername());
+        user.setEmail(addUserForm.getEmail());
+        user.setCountry(addUserForm.getCountry());
+        user.setPassword(addUserForm.getPassword());
+        user.setTerms(addUserForm.getTerms());
+        userRepository.save(user);
+        session.setAttribute("user_id", user.getId());
+        session.setAttribute("user", user);
+        return "redirect:/users";
+    }
+    
+    
 }
