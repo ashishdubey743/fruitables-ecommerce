@@ -15,14 +15,14 @@
         </thead>
         <tbody>
             <!-- Sample product item, you'll dynamically generate these in your actual application -->
-            <tr>
-                <td>1</td>
-                <td>test name</td>
+            <tr th:each="user,iterStat : ${users}">
+                <td th:text="${iterStat.count}"></td>
+                <td th:text="${user.username}"></td>
                 <td><img alt="User 1" class="img-thumbnail" style="max-width: 50px;"></td>
                 <td>test</td>
                 <td>
-                        <button type="button" class="btn btn-warning">Edit</button>
-                    <button onclick="deleteProduct(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>
+                    <button type="button" class="btn btn-warning">Edit</button>
+                    <button th:id="${user.id}" onclick="deleteUser(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>
                     <!-- <button type="button" class="btn btn-danger">Delete</button> -->
                 </td>
             </tr>

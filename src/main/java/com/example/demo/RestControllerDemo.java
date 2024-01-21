@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.entity.migrations.Category;
 import com.example.demo.model.entity.migrations.Product;
+import com.example.demo.model.entity.migrations.User;
 import com.example.demo.model.repository.CategoryRepository;
 import com.example.demo.model.repository.ProductRepository;
+import com.example.demo.model.repository.UserRepository;
+
 import java.util.Optional;
 
 @RestController
@@ -27,6 +30,8 @@ public class RestControllerDemo {
     private CategoryRepository categoryRepository;
     @Autowired
     private ProductRepository productRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     @Value("${upload.folder}")
     private String uploadFolder;
@@ -101,4 +106,29 @@ public class RestControllerDemo {
         }
         return response;
     }
+
+    @PostMapping("/delete_user")
+    public Map<String, Object> delete_user(@RequestBody User user) throws IOException {
+        Map<String, Object> response = new HashMap<>();
+        Optional<User> optionalUser = userRepository.findById(user.getId());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            if(existingUser != null){
+                    userRepository.delete(existingUser);
+
+                    
+                    // String fileName = existingUser.getImage().replaceAll(".*/", "");
+                    // Path filePath = Paths.get(uploadFolder + fileName);
+                    // if (Files.exists(filePath)) {
+                    //     Files.delete(filePath);
+                    // }
+                    response.put("status", 200);
+                    response.put("msg", "User Deleted");
+                }else {
+                    response.put("status", 404);
+                    response.put("msg", "User not found");
+                }
+        }
+        return response;
+    }    
 }

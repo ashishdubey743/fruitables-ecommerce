@@ -365,7 +365,9 @@ public class HomeController implements WebMvcConfigurer{
     }
 
     @RequestMapping("/users")
-    public String users() {
+    public String users(Model model) {
+        List<User> users = userRepository.findAll();
+        model.addAttribute("users", users);
         return "admin/pages/samples/users";
     }
     

@@ -95,3 +95,20 @@ const deleteProduct = (element, productId) => {
         }
     })
 }
+
+const deleteUser = (element, userId) => {
+    fetch('/delete_user',{
+        method : 'POST',
+        body : JSON.stringify({"id":userId}),
+        headers: {
+            'Content-Type': 'application/json'
+        }
+    }).then((response)=>{
+        return response.json();
+    }).then((response)=>{
+        console.log(response);
+        if(response.status == 200){
+           element.closest("tr").remove();
+        }
+    })
+}
