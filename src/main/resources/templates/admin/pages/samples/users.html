@@ -18,8 +18,8 @@
             <tr th:each="user,iterStat : ${users}">
                 <td th:text="${iterStat.count}"></td>
                 <td th:text="${user.username}"></td>
-                <td><img alt="User 1" class="img-thumbnail" style="max-width: 50px;"></td>
-                <td>test</td>
+                <td><img th:src="${user.image}" alt="User 1" class="img-thumbnail" style="max-width: 50px;"></td>
+                <td th:text="${user.address}"></td>
                 <td>
                     <button type="button" class="btn btn-warning">Edit</button>
                     <button th:id="${user.id}" onclick="deleteUser(this, this.getAttribute('id'))" type="button" class="btn btn-danger">Delete</button>

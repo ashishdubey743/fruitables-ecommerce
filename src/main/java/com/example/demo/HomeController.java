@@ -378,7 +378,7 @@ public class HomeController implements WebMvcConfigurer{
     }
 
     @PostMapping("/processAddUser")
-    public String processAddUser(@ModelAttribute("addUserForm") @Valid AddUserForm addUserForm, BindingResult bindingResult, Model model, HttpSession session) {
+    public String processAddUser(@RequestParam("image") MultipartFile file, @ModelAttribute("addUserForm") @Valid AddUserForm addUserForm, BindingResult bindingResult, Model model, HttpSession session) throws IOException {
         if(bindingResult.hasErrors()){
             return "admin/pages/samples/add_user";
         }
@@ -393,6 +393,18 @@ public class HomeController implements WebMvcConfigurer{
         user.setCountry(addUserForm.getCountry());
         user.setPassword(addUserForm.getPassword());
         user.setTerms(addUserForm.getTerms());
+        if(!addUserForm.getAddress().isEmpty()){
+            user.setAddress(addUserForm.getAddress());
+        }
+        if(!addUserForm.getImage().isEmpty()){
+            byte[] bytes = file.getBytes();
+            String filePath = uploadFolder + file.getOriginalFilename();
+            Path path = Paths.get(filePath);
+
+            Files.createDirectories(path.getParent());
+            Files.write(path, bytes);
+            user.setImage(path.toString().substring(path.toString().indexOf("admin/")));
+        }
         userRepository.save(user);
         session.setAttribute("user_id", user.getId());
         session.setAttribute("user", user);

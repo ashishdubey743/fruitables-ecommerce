@@ -1,5 +1,7 @@
 package com.example.demo.model.forms;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
@@ -20,6 +22,25 @@ public class AddUserForm {
 
     @NotNull(message = "Please Check Terms and Conditions")
     private String terms;
+
+    private MultipartFile image;
+
+    private String address;
+
+    public MultipartFile getImage(){
+        return this.image;
+    }
+    public void setImage(MultipartFile image){
+        this.image = image;
+    }
+
+    public String getAddress() {
+        return this.address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
 
     public String getUsername() {
         return username;

@@ -5,11 +5,13 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Lob;
 
 @Entity // This tells Hibernate to make a table out of this class
 public class User {
   @Id
-  @GeneratedValue(strategy=GenerationType.SEQUENCE)
+  
+  @GeneratedValue(strategy=GenerationType.AUTO)
   private Integer id;
   private String Username;
 
@@ -20,6 +22,26 @@ public class User {
   private String Password;
   private String Terms;
 
+  @Lob
+  private String image;
+
+  private String address;
+
+  public String getAddress() {
+    return this.address;
+  }
+
+  public void setAddress(String address) {
+    this.address = address;
+  }
+
+  public String getImage() {
+    return this.image;
+  }
+
+  public void setImage(String image) {
+    this.image = image;
+  }
   public Integer getId() {
     return id;
   }
