@@ -29,7 +29,6 @@ import com.example.demo.model.repository.ProductRepository;
 import com.example.demo.model.repository.UserRepository;
 
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.sql.rowset.serial.SerialException;
 import java.io.IOException;
@@ -38,7 +37,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.sql.SQLException;
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.ui.Model;
 
@@ -175,7 +173,12 @@ public class HomeController implements WebMvcConfigurer{
     public String categories(Model model) {
         List<Category> categories = categoryRepository.findAll();
         model.addAttribute("categories", categories);
-        System.out.println(categories);
+
+        for( Category category: categories){
+            long productCount = productRepository.countByCategory(category.getName());
+            category.setProductCount(productCount);
+        }
+        
         return "admin/pages/samples/categories";
     }
 

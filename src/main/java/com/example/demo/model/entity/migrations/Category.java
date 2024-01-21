@@ -31,6 +31,8 @@ public class Category {
     @Column(name = "created_at", updatable = false)
     private Date createdAt;
     
+    private Long productCount;
+
     // Getters and Setters
 
     @PrePersist
@@ -38,6 +40,14 @@ public class Category {
         createdAt = new Date();
     }
 
+    public Long getProductCount(){
+        return this.productCount;
+    }
+
+    public void setProductCount(Long productCount){
+        this.productCount = productCount;
+    }
+    
     public Integer getId() {
         return this.id;
     }
